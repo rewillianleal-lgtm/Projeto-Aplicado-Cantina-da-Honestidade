@@ -4,9 +4,10 @@ COLLATE utf8mb4_unicode_ci;
 
 USE confia_plus;
 
--- ============================================
+
+-- ============================================================
 -- USUARIO
--- ============================================
+-- ============================================================
 
 CREATE TABLE usuario (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
@@ -16,14 +17,16 @@ CREATE TABLE usuario (
     cpf VARCHAR(14) NOT NULL UNIQUE,
     senha_hash VARCHAR(255) NOT NULL,
     pin_pagamento VARCHAR(255) NOT NULL,
-    perfil ENUM('CLIENTE', 'OPERADOR', 'ADMINISTRADOR') NOT NULL DEFAULT 'CLIENTE',
+    perfil ENUM('CLIENTE', 'OPERADOR', 'ADMINISTRADOR')
+        NOT NULL DEFAULT 'CLIENTE',
     status BOOLEAN NOT NULL DEFAULT TRUE,
     data_cadastro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- ============================================
+
+-- ============================================================
 -- CARTEIRA
--- ============================================
+-- ============================================================
 
 CREATE TABLE carteira (
     id_carteira INT AUTO_INCREMENT PRIMARY KEY,
@@ -36,9 +39,10 @@ CREATE TABLE carteira (
         REFERENCES usuario(id_usuario)
 );
 
--- ============================================
+
+-- ============================================================
 -- PRODUTO
--- ============================================
+-- ============================================================
 
 CREATE TABLE produto (
     id_produto INT AUTO_INCREMENT PRIMARY KEY,
@@ -48,15 +52,16 @@ CREATE TABLE produto (
     quantidade_estoque INT NOT NULL DEFAULT 0,
     disponibilidade BOOLEAN NOT NULL DEFAULT TRUE,
 
-    -- QR Code utilizado para identificar o produto
+    -- Identificador utilizado pelo QR Code
     qr_code VARCHAR(255) UNIQUE,
 
     data_cadastro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- ============================================
+
+-- ============================================================
 -- COMPRA
--- ============================================
+-- ============================================================
 
 CREATE TABLE compra (
     id_compra INT AUTO_INCREMENT PRIMARY KEY,
@@ -69,9 +74,10 @@ CREATE TABLE compra (
         REFERENCES usuario(id_usuario)
 );
 
--- ============================================
+
+-- ============================================================
 -- ITEM DA COMPRA
--- ============================================
+-- ============================================================
 
 CREATE TABLE item_compra (
     id_item_compra INT AUTO_INCREMENT PRIMARY KEY,
@@ -90,17 +96,26 @@ CREATE TABLE item_compra (
         REFERENCES produto(id_produto)
 );
 
--- ============================================
+
+-- ============================================================
 -- MOVIMENTACAO
--- ============================================
+-- ============================================================
 
 CREATE TABLE movimentacao (
     id_movimentacao INT AUTO_INCREMENT PRIMARY KEY,
     id_carteira INT NOT NULL,
     id_usuario_resp INT NULL,
     id_compra INT NULL,
+
     tipo ENUM('RECARGA', 'COMPRA') NOT NULL,
-    forma_pagamento ENUM('PIX', 'DINHEIRO') NOT NULL,
+
+    /*
+       PIX      = recarga via Pix simulado
+       DINHEIRO = recarga realizada pelo operador
+       SALDO    = compra utilizando o saldo da carteira
+    */
+    forma_pagamento ENUM('PIX', 'DINHEIRO', 'SALDO') NOT NULL,
+
     valor DECIMAL(10,2) NOT NULL,
     data_hora DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     descricao VARCHAR(255),
@@ -118,9 +133,10 @@ CREATE TABLE movimentacao (
         REFERENCES compra(id_compra)
 );
 
--- ============================================
+
+-- ============================================================
 -- NOTIFICACAO
--- ============================================
+-- ============================================================
 
 CREATE TABLE notificacao (
     id_notificacao INT AUTO_INCREMENT PRIMARY KEY,
